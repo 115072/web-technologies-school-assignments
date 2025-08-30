@@ -1,0 +1,21 @@
+version: "3.8"
+services:
+  zadanie4-server:
+    image: node:latest
+    restart: always
+    working_dir: /app
+    volumes:
+      - ./server: /app
+    ports:
+      - "8085:3000"
+    command: node .
+
+  frontend:
+    image: nginx:latest
+    restart: always
+    volumes:
+      - ./zadanie4:/usr/share/nginx/html
+    ports:
+      - "8086:80"
+    depends_on:
+      - zadanie4-server

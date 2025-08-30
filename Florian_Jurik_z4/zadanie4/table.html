@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>City Data Table</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Tabulator CSS -->
+    <link
+      href="https://unpkg.com/tabulator-tables@4.9.3/dist/css/tabulator.min.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* Custom styles for navigation bar */
+      .navbar {
+        background-color: #f8f9fa; /* Light gray background */
+        border-bottom: 2px solid #dee2e6; /* Gray border bottom */
+        border-radius: 0; /* Remove border radius */
+      }
+
+      .navbar-nav .nav-link {
+        color: #495057; /* Dark gray text color */
+      }
+
+      .navbar-nav .nav-link:hover {
+        color: #007bff; /* Blue text color on hover */
+      }
+
+      /* Custom styles for table */
+      .tabulator {
+        border: none; /* Remove default table border */
+      }
+
+      .tabulator-header {
+        background-color: #007bff; /* Blue header background */
+        color: #fff; /* White text color */
+      }
+
+      .tabulator-row {
+        background-color: #f8f9fa; /* Light gray row background */
+      }
+
+      .tabulator-row:nth-child(even) {
+        background-color: #e9ecef; /* Alternate row background color */
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">City info</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="statistika.html">Statistics</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="table.html">Table</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <h2 class="mt-4">City Data</h2>
+
+    <div id="cityTable"></div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Tabulator JS -->
+    <script src="https://unpkg.com/tabulator-tables@4.9.3/dist/js/tabulator.min.js"></script>
+
+    <script>
+      $(document).ready(function () {
+        // Fetch data from the server
+        fetch("http://147.175.105.54:8085/city")
+          .then((response) => response.json())
+          .then((data) => {
+            // Create a map to count occurrences of each unique combination of destination and country
+            const counterMap = new Map();
+            data.forEach((city) => {
+              const key = `${city.destination}-${city.country}`;
+              counterMap.set(key, (counterMap.get(key) || 0) + 1);
+            });
+
+            // Convert map data to array of objects
+            const tableData = [...counterMap].map(([key, count]) => {
+              const [destination, country] = key.split("-");
+              return { destination, country, count };
+            });
+
+            // Define table columns
+            const columns = [
+              { title: "Destination", field: "destination" },
+              { title: "Country", field: "country" },
+              { title: "Visited", field: "count" },
+            ];
+
+            // Create Tabulator table
+            const table = new Tabulator("#cityTable", {
+              data: tableData,
+              columns: columns,
+              layout: "fitDataFill", // Adjust column widths to fit content
+            });
+          })
+          .catch((error) => console.error("Error fetching city data:", error));
+      });
+    </script>
+  </body>
+</html>

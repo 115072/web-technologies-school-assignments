@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>City Information</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* Custom styles for navigation bar */
+      .navbar {
+        background-color: #f8f9fa; /* Light gray background */
+        border-bottom: 2px solid #dee2e6; /* Gray border bottom */
+        border-radius: 0; /* Remove border radius */
+      }
+
+      .navbar-nav .nav-link {
+        color: #495057; /* Dark gray text color */
+      }
+
+      .navbar-nav .nav-link:hover {
+        color: #007bff; /* Blue text color on hover */
+      }
+
+      /* Custom styles for form */
+      form {
+        max-width: 500px; /* Limit form width */
+        margin: 30px auto; /* Center the form */
+        padding: 20px; /* Add padding */
+        border: 1px solid #dee2e6; /* Light gray border */
+        border-radius: 8px; /* Rounded corners */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Shadow effect */
+      }
+
+      form label {
+        font-weight: bold; /* Bold labels */
+      }
+
+      form select {
+        width: 100%; /* Full width select */
+        margin-bottom: 15px; /* Add spacing */
+      }
+
+      form button[type="submit"] {
+        width: 100%; /* Full width button */
+      }
+
+      /* Custom styles for result section */
+      #flag {
+        display: block; /* Display flag image as block */
+        margin: 20px auto; /* Center flag image */
+      }
+
+      #countryName,
+      #capital,
+      #exchangeRate,
+      #temperature,
+      #result {
+        margin-bottom: 15px; /* Add spacing */
+        text-align: center; /* Center text */
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">City info</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="statistika.html">Statistics</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="table.html">Table</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <form
+      onsubmit="event.preventDefault(); getCityInformation(); averageTemperature();showFlag();"
+      class="mt-3"
+    >
+      <div class="mb-3">
+        <label for="cityInput" class="form-label">Enter a city:</label>
+        <input
+          type="text"
+          id="cityInput"
+          name="cityInput"
+          class="form-control"
+        />
+        <input type="hidden" id="countryInput" name="countryInput" />
+      </div>
+      <div class="mb-3">
+        <label for="months" class="form-label"
+          >Which month do you want to travel?</label
+        >
+        <select id="months" name="months" class="form-select">
+          <option value="01">January</option>
+          <option value="02">February</option>
+          <option value="03">March</option>
+          <option value="04">April</option>
+          <option value="05">May</option>
+          <option value="06">June</option>
+          <option value="07">July</option>
+          <option value="08">August</option>
+          <option value="09">September</option>
+          <option value="10">October</option>
+          <option value="11">November</option>
+          <option value="12">December</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+
+    <!-- Flag image -->
+    <img
+      id="flag"
+      width="96"
+      height="64"
+      alt="Flag"
+      class="mt-3"
+      style="display: none"
+    />
+
+    <!-- Display country name -->
+    <div id="countryName" class="mt-3"></div>
+
+    <!-- Display capital -->
+    <div id="capital" class="mt-3"></div>
+
+    <!-- Display exchange rate -->
+    <div id="exchangeRate" class="mt-3"></div>
+
+    <!-- Display temperature -->
+    <div id="temperature" class="mt-3"></div>
+
+    <!-- Display result -->
+    <div id="result" class="mt-3"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Function to fetch country details
+      function getCountryDetails(countryCode) {
+        // Make API call using jQuery AJAX
+        $.ajax({
+          method: "GET",
+          url: `https://restcountries.com/v3.1/alpha/${countryCode}`,
+          contentType: "application/json",
+          success: function (result) {
+            // Display capital
+            const capital = result[0].capital[0];
+            $("#capital").html(`<strong>Capital:</strong> ${capital}`);
+            // Display country name
+            const countryName = result[0].name.common;
+            $("#countryName").html(`<strong>Country:</strong> ${countryName}`);
+            // Update flag image
+            const flagUrl = result[0].flags.png;
+            $("#flag").attr("src", flagUrl);
+            $("#flag").attr("alt", `${countryCode} flag`);
+
+            // Get currency code
+            const currencyCode = Object.keys(result[0].currencies)[0];
+            // Fetch exchange rate for Euro to currency
+            $("#countryInput").val(`${countryName}`);
+            getExchangeRate(currencyCode);
+            submitCity(event);
+          },
+          error: function ajaxError(jqXHR) {
+            console.error("Error: ", jqXHR.responseText);
+          },
+        });
+      }
+
+      // Function to fetch exchange rate for Euro to specified currency
+      function getExchangeRate(currencyCode) {
+        // CORS proxy URL
+        const corsProxyUrl = "https://cors-anywhere.herokuapp.com/";
+
+        // API URL
+        const apiUrl =
+          "http://api.exchangeratesapi.io/v1/latest?access_key=6316f0993816bed2f49da497fb8e016c&format=1";
+
+        // Make API call using CORS proxy
+        $.ajax({
+          method: "GET",
+          url: corsProxyUrl + apiUrl,
+          contentType: "application/json",
+          success: function (result) {
+            // Display exchange rate only if currency is not EUR
+            if (currencyCode !== "EUR") {
+              const exchangeRate = result.rates[currencyCode];
+              $("#exchangeRate").html(
+                `<strong>1 Euro = </strong>  ${exchangeRate} ${currencyCode}`
+              );
+            } else {
+              // Hide the exchange rate element if currency is EUR
+              $("#exchangeRate").hide();
+            }
+          },
+          error: function (jqXHR) {
+            console.error("Error: ", jqXHR.responseText);
+          },
+        });
+      }
+
+      // Function to fetch city information
+      function getCityInformation() {
+        const cityName = document.getElementById("cityInput").value;
+
+        // Make API call using jQuery AJAX
+        $.ajax({
+          method: "GET",
+          url: "https://api.api-ninjas.com/v1/city?name=" + cityName,
+          headers: { "X-Api-Key": "G6hhS/v/YkHN6KgoTFpETg==L7MgdwFCjzGomUGm" },
+          contentType: "application/json",
+          success: function (result) {
+            // Display city information
+            console.log(result);
+            // Extract country code from API response
+            const countryCode = result[0].country;
+            // Fetch country details
+            getCountryDetails(countryCode);
+            // Fetch weather information
+            getWeather(cityName);
+          },
+          error: function ajaxError(jqXHR) {
+            console.error("Error: ", jqXHR.responseText);
+          },
+        });
+      }
+
+      // Function to fetch weather information
+      function getWeather(cityName) {
+        // Make API call using jQuery AJAX
+        $.ajax({
+          method: "GET",
+          url: `http://api.weatherapi.com/v1/current.json?key=e873fc14c38c4cf3a68151011242004&q=${cityName}&aqi=no`,
+          contentType: "application/json",
+          success: function (result) {
+            // Display temperature
+            const temperatureC = result.current.temp_c;
+            $("#temperature").html(
+              `<strong>Temperature in ${cityName}:</strong> ${temperatureC}°C`
+            );
+          },
+          error: function ajaxError(jqXHR) {
+            console.error("Error: ", jqXHR.responseText);
+          },
+        });
+      }
+
+      function averageTemperature() {
+        var monthsDropdown = document.getElementById("months");
+        var selectedMonth = monthsDropdown.value;
+        var year = selectedMonth >= 1 && selectedMonth <= 4 ? 2024 : 2023;
+        var daysInMonth = new Date(year, selectedMonth, 0).getDate(); // Get number of days in the selected month
+        var resultDiv = document.getElementById("result");
+        resultDiv.innerHTML = ""; // Clear previous results
+
+        var totalAvgTempC = 0; // Total of average temperatures
+        var count = 0; // Count of days with data
+
+        // Iterate through each day of the month
+        for (var day = 1; day <= daysInMonth; day++) {
+          var apiUrl =
+            "http://api.weatherapi.com/v1/history.json?key=e873fc14c38c4cf3a68151011242004&q=London&dt=" +
+            year +
+            "-" +
+            selectedMonth.padStart(2, "0") +
+            "-" +
+            day.toString().padStart(2, "0");
+
+          // Perform API call for each day
+          fetch(apiUrl)
+            .then((response) => response.json())
+            .then((data) => {
+              // Extract average temperature for the day
+              var avgTempC = data.forecast.forecastday[0].day.avgtemp_c;
+              if (!isNaN(avgTempC)) {
+                // Create a new row and append the date and average temperature to it
+                /*var newRow = document.createElement("div");
+                newRow.innerText =
+                  "Date: " +
+                  data.forecast.forecastday[0].date +
+                  ", Average Temperature: " +
+                  avgTempC +
+                  "°C";
+                resultDiv.appendChild(newRow);*/
+
+                // Accumulate total average temperature
+                totalAvgTempC += avgTempC;
+                count++;
+              }
+            })
+            .catch((error) => {
+              console.error("Error fetching data:", error);
+            });
+        }
+
+        // Calculate and display the average of averages
+        setTimeout(function () {
+          // Use setTimeout to ensure all API calls have completed before calculating the average
+          var averageOfAverages = totalAvgTempC / count;
+          var avgOfAveragesRow = document.createElement("div");
+          avgOfAveragesRow.innerHTML =
+            "<strong>Average: </strong>" + averageOfAverages.toFixed(2) + "°C";
+          resultDiv.appendChild(avgOfAveragesRow);
+        }, 2000); // Adjust timeout as needed depending on API response time
+      }
+
+      function submitCity(event) {
+        event.preventDefault(); // Prevent default form submission
+
+        const cityName = document.getElementById("cityInput").value;
+        const countryName = document.getElementById("countryInput").value;
+
+        // Create an object with city and country information
+        const cityData = {
+          destination: cityName,
+          country: countryName,
+        };
+
+        // Make AJAX call to your server to submit city data
+        $.ajax({
+          method: "POST",
+          url: "http://147.175.105.54:8085/city",
+          contentType: "application/json",
+          data: JSON.stringify(cityData), // Send city data as JSON
+          success: function (result) {
+            // Handle success response if needed
+            console.log(result);
+          },
+          error: function ajaxError(jqXHR) {
+            console.error("Error: ", jqXHR.responseText);
+          },
+        });
+      }
+
+      // Function to show the flag image
+      function showFlag() {
+        $("#flag").show(); // Show the flag image
+      }
+    </script>
+  </body>
+</html>
