@@ -1,0 +1,23 @@
+version: "3.8"
+services:
+  websocket-server:
+    image: node:latest
+    container_name: websocket-server
+    restart: always
+    working_dir: /app
+    volumes:
+      - ./server: /app
+    ports:
+      - "8083:8083"
+    command: node .
+
+  frontend:
+    image: nginx:latest
+    conainter_name: frontend
+    restart: always
+    volumes:
+      - ./zadanie3:/usr/share/nginx/html
+    ports:
+      - "8084:80"
+    depends_on:
+      - websocket-server

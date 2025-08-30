@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Paper.io</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <style>
+      #canvas-container {
+        width: 80%;
+        height: 90vh;
+        margin: auto;
+        position: relative;
+        border: 1px solid #ccc;
+        overflow: hidden;
+        background-color: #f2f2f2;
+      }
+
+      canvas {
+        display: block;
+        margin: auto; /* Center the canvas within its container */
+        border: 1px solid #000; /* Add border to canvas */
+      }
+
+      #percentage-text {
+        position: absolute; /* Set position to absolute */
+        bottom: -50px; /* Move text below canvas by adjusting bottom value */
+        left: 0; /* Align text to the left of the canvas container */
+        width: 100%; /* Make text container full width of canvas container */
+        text-align: center; /* Center align text */
+        background-color: #fff; /* Set background color to white */
+        padding: 10px; /* Add padding for better readability */
+      }
+
+      /* CSS for the modal */
+      .modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0, 0, 0); /* Fallback color */
+        background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+      }
+
+      /* Modal content */
+      .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto; /* 15% from the top and centered */
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%; /* Could be more or less, depending on screen size */
+        text-align: center; /* Center align the text */
+      }
+
+      /* Close button */
+      .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+      }
+
+      .close:hover,
+      .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      body {
+        background-color: #e6f2ff; /* Light gray background color */
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      class="container d-flex justify-content-center align-items-center vh-100"
+    >
+      <div id="canvas-container">
+        <canvas id="myCanvas"></canvas>
+      </div>
+    </div>
+
+    <div class="container mt-3">
+      <div id="percentage-text">
+        <h1 id="player-percentage">Percentage: 0%</h1>
+        <div id="timer"></div>
+        <div id="playerid"></div>
+      </div>
+    </div>
+
+    <!-- Modal HTML structure -->
+    <div id="myModal" class="modal">
+      <!-- Modal content -->
+      <div class="modal-content">
+        <p id="modalContent"></p>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+      ////////////////////////////////////// server communication
+
+      // Store the player ID received from the server
+      let playerId;
+      let modalTexxt;
+
+      // Function to create rectangles for other players
+      function createOtherPlayer(x, y, color) {
+        ctx.fillStyle = color.hex;
+        ctx.fillRect(x - rectSize / 2, y - rectSize / 2, rectSize, rectSize);
+      }
+
+      // WebSocket connection setup
+      const ws = new WebSocket("ws://147.175.105.54:8083");
+
+      ws.addEventListener("open", () => {
+        console.log("Connected to server!");
+        // Send spawn position when first connected
+        sendSpawnPosition();
+      });
+
+      ws.addEventListener("message", (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === "connectedPlayers") {
+            // Handle list of connected players
+            console.log("Connected players:", data.data);
+            updateGridWithBaseCoordinates(data.data);
+            //fillHitGridCells();
+
+            // Loop through the connected players and spawn a rectangle for each player
+            for (const id in data.data) {
+              const player = data.data[id];
+              createOtherPlayer(player.x, player.y, player.color);
+              // Update myColor if the player is the current user
+              if (id === playerId) {
+                myColor = player.color;
+              }
+            }
+          } else if (data.type === "playerId") {
+            // Store the player ID received from the server
+            playerId = data.id;
+            document.getElementById("playerid").innerHTML =
+              "<strong> Player id: </strong>" + playerId;
+          } else if (data.type === "playerDisconnected") {
+            // Update grid to mark cells occupied by the disconnected player as empty
+            for (let x = 0; x < gridHeight; x++) {
+              for (let y = 0; y < gridWidth; y++) {
+                const cell = grid[x][y];
+                if (cell) {
+                  if (typeof cell === "object") {
+                    if (cell.playerId === data.id) {
+                      grid[x][y] = false;
+                    }
+                  }
+                }
+              }
+            }
+            // Now you might want to redraw your canvas or update your game state accordingly
+          } else if (data.type === "uniqueArray") {
+            // Log the uniqueArray received from the server to the console
+            console.log("Unique Array received from server:", data.data);
+          } else if (data.type === "updateRectPosition") {
+            // Handle updateRectPosition message
+            // You can now use the updated x and y values to position the rectangle on the grid
+            console.log(
+              "Rectangle position updated: x =",
+              data.x,
+              ", y =",
+              data.y
+            );
+          } else if (data.type === "disconnectPlayer") {
+            console.log("dead");
+          } else if (data.type === "timer") {
+            if (data.remainingTime === 1) {
+              // Stop the timer or perform any other necessary actions
+              //  clearInterval(timerInterval);
+              // Display modal with text from the server
+              handleTimerEnd();
+            } else {
+              // Update the UI to display the remaining time
+              document.getElementById("timer").innerHTML =
+                "<strong>Remaining Time: </strong> " +
+                data.remainingTime +
+                " seconds";
+            }
+          } else if (data.type === "playerWithHighestPercentage") {
+            // Update the UI or perform any necessary action based on the player with the highest percentage
+            const playerData = data.data;
+            console.log(
+              "Player ",
+              playerData.id,
+              " won, he with the most percentage: ",
+              playerData.percentage
+            );
+            modalTexxt =
+              "Player <strong>" +
+              playerData.id +
+              "</strong> won, with the most percentage: <strong>" +
+              playerData.percentage +
+              "</strong>";
+            showModal(modalTexxt);
+          }
+        } catch (error) {
+          console.error("Error parsing JSON:", error);
+        }
+      });
+
+      // Function to send the uniqueArray to the server
+      function sendUniqueArray(array) {
+        array = Array.from(new Set(paintedTiles));
+        const message = {
+          type: "uniqueArray",
+          data: array,
+        };
+        ws.send(JSON.stringify(message));
+        console.log("elkuldott uniqueArray:");
+        console.log(array);
+      }
+
+      // Define a function to send the player's spawn position to the server
+      function sendSpawnPosition() {
+        // Assuming rectX and rectY represent the player's current position
+        const spawnData = {
+          type: "spawn",
+          spawnX: rectX,
+          spawnY: rectY,
+          spawnBase: baseCoordinates,
+        };
+        ws.send(JSON.stringify(spawnData));
+      }
+
+      // Function to display modal with text from the server
+      function showModal(modalText) {
+        // Get the modal element
+        var modal = document.getElementById("myModal");
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+        // Get the element to display the text
+        var modalContent = document.getElementById("modalContent");
+        // Set the text content
+        modalContent.innerHTML = modalText;
+        // Display the modal
+        modal.style.display = "block";
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function () {
+          modal.style.display = "none";
+        };
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function (event) {
+          if (event.target == modal) {
+            modal.style.display = "none";
+          }
+        };
+      }
+
+      window.onclick = function (event) {
+        var modal = document.getElementById("myModal");
+        if (event.target == modal) {
+          modal.style.display = "none";
+        }
+      };
+
+      // Function to handle timer end
+      function handleTimerEnd() {
+        // Extract the percentage value from the text content of the player percentage element
+        const playerPercentageText =
+          document.getElementById("player-percentage").textContent;
+        const percentage = parseFloat(
+          playerPercentageText.match(/\d+\.\d+/)[0]
+        ); // Extract the floating-point number from the text
+        //console.log("Player percentage:", percentage);
+
+        // Send the player ID and percentage value to the server
+        const message = JSON.stringify({
+          type: "playerPercentage",
+          playerId: playerId,
+          percentage: percentage,
+        });
+        ws.send(message);
+      }
+
+      // Function to send the current position of the rectangle to the server
+      function sendRectPosition(gridX, gridY) {
+        if (playerId) {
+          const message = {
+            type: "updateRectPosition",
+            id: playerId, // Use the stored player ID
+            x: gridX,
+            y: gridY,
+          };
+          console.log("Sending updateRectPosition:", message); // Log the message being sent
+          ws.send(JSON.stringify(message));
+        } else {
+          console.error("Player ID not available!");
+        }
+      }
+
+      function sendUpdatedBaseCoordinates(updatedCoordinates) {
+        if (playerId) {
+          const message = {
+            type: "updateBaseCoordinates",
+            id: playerId, // Use the stored player ID
+            data: updatedCoordinates,
+          };
+          console.log("Sending updateBaseCoordinates:", message); // Log the message being sent
+          ws.send(JSON.stringify(message));
+        } else {
+          console.error("Player ID not available!");
+        }
+      }
+
+      // Function to update the grid with player IDs and colors based on baseCoordinates
+      function updateGridWithBaseCoordinates(connectedPlayers) {
+        // Iterate through connected players
+        for (const playerId in connectedPlayers) {
+          const player = connectedPlayers[playerId];
+          // Get player's color
+          const color = player.color.rgba;
+          // Iterate through player's baseCoordinates
+          player.baseCoordinates.forEach((coord) => {
+            const [x, y] = coord.split(",").map(Number);
+            // Update grid with player's ID and color at the corresponding coordinate
+            grid[x][y] = { playerId, color };
+          });
+        }
+      }
+
+      // Function to fill the grid cells hit by the rectangle
+      function fillHitGridCells() {
+        // Loop through each grid cell
+        for (let i = 0; i < gridWidth; i++) {
+          for (let j = 0; j < gridHeight; j++) {
+            const cell = grid[i][j];
+            if (cell) {
+              if (typeof cell === "object") {
+                // If the cell contains player ID and color information
+                ctx.fillStyle = cell.color;
+              }
+              // Fill the grid cell
+              const x = i * gridSize;
+              const y = j * gridSize;
+              ctx.fillRect(x, y, gridSize, gridSize);
+            }
+          }
+        }
+      }
+
+      // Listen for WebSocket close event
+      ws.addEventListener("close", () => {
+        console.log("Disconnected from server!");
+        // Send a message to the server indicating that the player is disconnecting
+        ws.send(JSON.stringify({ type: "disconnect" }));
+      });
+
+      ////////////////////////////////////// server communication
+
+      // Get the canvas element
+      var canvas = document.getElementById("myCanvas");
+      var ctx = canvas.getContext("2d");
+      var myColor;
+
+      // Set canvas dimensions directly
+      canvas.width = 800;
+      canvas.height = 800;
+
+      // Grid properties
+      var gridSize = canvas.width / 50; // Size of each grid cell
+      var gridWidth = 50; // Number of grid cells horizontally
+      var gridHeight = 50; // Number of grid cells vertically
+      var grid = []; // 2D array to represent the grid
+
+      // Array to store painted tiles including coordinates where rectangle left the base
+      var paintedTiles = [];
+      var uniqueArray = [];
+
+      // Base coordinates
+      var baseCoordinates = [];
+
+      var randomNumberforTheBase = Math.floor(Math.random() * (30 - 5 + 1)) + 5;
+      randomNumberforTheBase++;
+      for (var i = 0; i < 3; i++) {
+        for (var j = 0; j < 3; j++) {
+          baseCoordinates.push(
+            `${randomNumberforTheBase - i},${randomNumberforTheBase - j}`
+          );
+        }
+      }
+
+      // Get the 5th value from the array
+      var fifthValue = baseCoordinates[4];
+
+      // Split the fifth value into x and y coordinates
+      var coordinates = fifthValue.split(",");
+      var xCoordinate = parseInt(coordinates[0]);
+      var yCoordinate = parseInt(coordinates[1]);
+
+      // Rectangle properties
+      var rectSize = 20; // Size of the rectangle
+      var rectX = Math.floor(xCoordinate * gridSize); // Initial x position of the rectangle
+      var rectY = Math.floor(yCoordinate * gridSize); // Initial y position of the rectangle
+
+      var rectSpeed = 3; // Speed of the rectangle
+
+      // Initialize the grid
+      for (var i = 0; i < gridWidth; i++) {
+        grid[i] = [];
+        for (var j = 0; j < gridHeight; j++) {
+          // Set some tiles in the middle as true
+          if (baseCoordinates.includes(`${i},${j}`)) {
+            grid[i][j] = true;
+          } else {
+            grid[i][j] = false;
+          }
+        }
+      }
+
+      // Function to draw the rectangle
+      function drawRect(x, y) {
+        ctx.fillStyle = myColor.hex;
+        ctx.fillRect(x - rectSize / 2, y - rectSize / 2, rectSize, rectSize);
+      }
+
+      // Function to draw grid lines
+      function drawGrid() {
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 1;
+
+        // Draw vertical grid lines
+        for (var i = 0; i <= canvas.width; i += gridSize) {
+          ctx.beginPath();
+          ctx.moveTo(i, 0);
+          ctx.lineTo(i, canvas.height);
+          ctx.stroke();
+        }
+
+        // Draw horizontal grid lines
+        for (var j = 0; j <= canvas.height; j += gridSize) {
+          ctx.beginPath();
+          ctx.moveTo(0, j);
+          ctx.lineTo(canvas.width, j);
+          ctx.stroke();
+        }
+      }
+
+      // Function to update the position of the rectangle based on cursor movement
+      function updateRect(mouseX, mouseY) {
+        // Calculate the direction from the rectangle to the cursor
+        var dx = mouseX - rectX;
+        var dy = mouseY - rectY;
+        var distance = Math.sqrt(dx * dx + dy * dy);
+
+        // Normalize the direction
+        var dirX = dx / distance;
+        var dirY = dy / distance;
+
+        // Update the position of the rectangle with constant speed
+        rectX += dirX * rectSpeed;
+        rectY += dirY * rectSpeed;
+
+        // Ensure the rectangle stays within the canvas boundaries
+        rectX = Math.max(
+          rectSize / 2,
+          Math.min(canvas.width - rectSize / 2, rectX)
+        );
+        rectY = Math.max(
+          rectSize / 2,
+          Math.min(canvas.height - rectSize / 2, rectY)
+        );
+
+        // Mark the corresponding grid cell as filled
+        var gridX = Math.floor(rectX / gridSize);
+        var gridY = Math.floor(rectY / gridSize);
+        grid[gridX][gridY] = playerId;
+
+        // Record painted tiles, including coordinates where rectangle left the base
+        var currentCoord = `${gridX},${gridY}`;
+        if (!paintedTiles.includes(currentCoord)) {
+          paintedTiles.push(currentCoord);
+        }
+        // Check if the current position is a base coordinate
+        if (baseCoordinates.includes(currentCoord)) {
+          // Add the base coordinate to the paintedTiles array
+          paintedTiles.push(currentCoord);
+        }
+
+        // Send updated position of the rectangle to the server
+        sendRectPosition(gridX, gridY);
+      }
+
+      /*// Function to fill the grid cells hit by the rectangle
+      function fillHitGridCells() {
+        ctx.fillStyle = myColor.rgba;
+
+        // Loop through each grid cell
+        for (var i = 0; i < gridWidth; i++) {
+          for (var j = 0; j < gridHeight; j++) {
+            if (grid[i][j]) {
+              // If the grid cell is hit by the rectangle, fill it
+              var x = i * gridSize;
+              var y = j * gridSize;
+              ctx.fillRect(x, y, gridSize, gridSize);
+            }
+          }
+        }
+      }*/
+
+      // Function to clear the canvas
+      function clearCanvas() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+
+      // Function to update and redraw the canvas
+      function updateCanvas(mouseX, mouseY) {
+        clearCanvas();
+        drawGrid(); // Draw the grid lines
+        updateRect(mouseX, mouseY);
+        drawRect(rectX, rectY); // Draw the current rectangle
+        fillHitGridCells(); // Fill the grid cells hit by the rectangle
+
+        var gridX = Math.floor(rectX / gridSize);
+        var gridY = Math.floor(rectY / gridSize);
+        var kombinacia = gridX + "," + gridY;
+        if (baseCoordinates.includes(kombinacia)) {
+          fillIntermediaryTiles();
+        }
+        // console.log("Current position of the red cube: ", gridX, gridY);
+
+        // Send the uniqueArray to the server
+        sendUniqueArray(uniqueArray);
+      }
+
+      // Event listener for mousemove
+      canvas.addEventListener("mousemove", function (event) {
+        var mousePos = getMousePos(canvas, event);
+        updateCanvas(mousePos.x, mousePos.y);
+      });
+
+      // Event listener for mouseout
+      canvas.addEventListener("mouseout", function () {
+        console.log(
+          "Painted Tiles including coordinates where rectangle left the base:"
+        );
+        console.log(grid);
+        // console.log(Array.from(new Set(paintedTiles)));
+      });
+
+      // Function to get mouse position relative to canvas
+      function getMousePos(canvas, event) {
+        var rect = canvas.getBoundingClientRect();
+        return {
+          x: event.clientX - rect.left,
+          y: event.clientY - rect.top,
+        };
+      }
+
+      // Function to fill the intermediary tiles between base and trail
+      function fillIntermediaryTiles() {
+        ctx.fillStyle = myColor.rgba;
+
+        // console.log("///////////////////////////////");
+        // console.log("painted tiles:");
+        // console.log(paintedTiles);
+        // console.log("-------------------------------");
+
+        uniqueArray = Array.from(new Set(paintedTiles));
+
+        // console.log("unique array:");
+        // console.log(uniqueArray);
+
+        midY = xCoordinate;
+        let asd = [];
+        var flag = 0;
+        let uniqueArrayWithouttheBase = [];
+
+        for (let i = 0; i < 80; i++) {
+          let filteredArray = filterByX(uniqueArray, i);
+
+          filteredArray = filterArrayByExclusion(
+            filteredArray,
+            baseCoordinates
+          );
+
+          if (flag == 0) {
+            uniqueArrayWithouttheBase = filterArrayByExclusion(
+              uniqueArray,
+              baseCoordinates
+            );
+            flag++;
+          }
+
+          /* console.log("Base:");
+          console.log(baseCoordinates);
+          console.log("unique array:");
+          console.log(uniqueArray);*/
+
+          let smallestX = Infinity; // Initialize with a very large number
+
+          // Loop through each string in the array
+          for (let j = 0; j < filteredArray.length; j++) {
+            let values = filteredArray[j].split(","); // Split the string into x and y parts
+            let x = parseFloat(values[1]); // Convert y to a floating-point number
+
+            if (!isNaN(x) && x < smallestX) {
+              smallestX = x; // Update smallestY if y is a valid number and smaller than current smallestY
+            }
+          }
+
+          let largestX = 0; // Initialize with a very small number
+
+          // Loop through each string in the array
+          for (let j = 0; j < filteredArray.length; j++) {
+            let values = filteredArray[j].split(","); // Split the string into x and y parts
+            let x = parseFloat(values[1]); // Convert x to a floating-point number
+
+            if (!isNaN(x) && x > largestX) {
+              largestX = x; // Update largestX if x is a valid number and larger than current largestX
+            }
+          }
+
+          for (let j = smallestX; j < largestX; j++) {
+            grid[i][j] = playerId;
+            var myString = i + "," + j;
+            baseCoordinates.push(myString);
+          }
+        }
+
+        var newArray = [];
+        newArray = extendArray(uniqueArrayWithouttheBase);
+
+        //console.log("unique array without the base:");
+        //console.log(uniqueArrayWithouttheBase);
+        //console.log("new array:");
+        //console.log(newArray);
+
+        if (uniqueArrayWithouttheBase.length < uniqueArray.length / 3) {
+          for (let i = 0; i < newArray.length; i++) {
+            const [x, y] = newArray[i].split(",").map(Number);
+            grid[x][y] = playerId;
+            var myString = x + "," + y;
+            baseCoordinates.push(myString);
+          }
+        }
+
+        for (var i = 0; i < uniqueArray.length; i++) {
+          if (!baseCoordinates.includes(uniqueArray[i])) {
+            baseCoordinates.push(uniqueArray[i]);
+          }
+        }
+        sendUpdatedBaseCoordinates(baseCoordinates);
+        //paintedTiles = []; // itt lehet majd ezt ki kell törölni és jobban fog menni a halál amikor saját magába fog menni
+        updatePlayerOccupiedPercentage(playerId);
+      }
+
+      function parseCoordinates(coord) {
+        const [x, y] = coord.split(",").map(Number);
+        return { x, y };
+      }
+
+      function extendArray(array1) {
+        const parsedArray1 = array1.map((str) => str.split(",").map(Number));
+        const yValues = parsedArray1.map((coords) => coords[1]);
+
+        const minXArray1 = Math.min(...parsedArray1.map((coords) => coords[0]));
+        const maxXArray1 = Math.max(...parsedArray1.map((coords) => coords[0]));
+
+        const array2 = [];
+
+        // Extend x values from minXArray1 to 24
+        for (let x = minXArray1; x <= midY; x++) {
+          for (let i = 0; i < yValues.length; i++) {
+            if (x <= maxXArray1) {
+              array2.push(`${x},${yValues[i]}`);
+            }
+          }
+        }
+
+        // Extend x values from maxXArray1 to 24
+        for (let x = maxXArray1; x >= midY; x--) {
+          for (let i = 0; i < yValues.length; i++) {
+            if (x >= minXArray1) {
+              array2.push(`${x},${yValues[i]}`);
+            }
+          }
+        }
+
+        return array2;
+      }
+
+      function valuesBetweenArrays(array1, array2) {
+        // Parse string values in array1
+        const parsedArray1 = array1.map((str) => str.split(",").map(Number));
+
+        // Extract y values from array1
+        const yValues = parsedArray1.map((coords) => coords[1]);
+
+        // Find min and max x coordinates in array1
+        const minXArray1 = Math.min(...parsedArray1.map((coords) => coords[0]));
+        const maxXArray1 = Math.max(...parsedArray1.map((coords) => coords[0]));
+
+        // Generate array of values between min and max x values
+        const valuesBetween = [];
+        for (let x = minXArray1; x <= maxXArray1; x++) {
+          for (let i = 0; i < yValues.length; i++) {
+            valuesBetween.push(`${x},${yValues[i]}`);
+          }
+        }
+
+        return valuesBetween;
+      }
+
+      function filterByX(array, yValue) {
+        const filteredArray = array.filter((item) => {
+          const [x] = item.split(","); // Split the item into x and y parts
+          return parseFloat(x) === yValue; // Check if y is not equal to the specified yValue
+        });
+        return filteredArray;
+      }
+
+      function filterArrayByExclusion(array1, array2) {
+        const filteredArray = [];
+        for (let i = 0; i < array1.length; i++) {
+          if (!array2.includes(array1[i])) {
+            filteredArray.push(array1[i]);
+          }
+        }
+        return filteredArray;
+      }
+
+      function updatePlayerOccupiedPercentage(playerId) {
+        let totalCells = 0;
+        let playerOccupiedCells = 0;
+
+        // Iterate through the grid array
+        for (let i = 0; i < gridWidth; i++) {
+          for (let j = 0; j < gridHeight; j++) {
+            const cell = grid[i][j];
+
+            // Check if the cell is occupied by the player
+            if (
+              cell &&
+              typeof cell === "object" &&
+              cell.playerId === playerId
+            ) {
+              playerOccupiedCells++;
+            }
+
+            // Increment totalCells count for each cell in the grid
+            totalCells++;
+          }
+        }
+
+        // Calculate the percentage of cells occupied by the player
+        const percentage = (playerOccupiedCells / totalCells) * 100 * 1.342;
+
+        // Update the content of the <h1> tag within the #percentage-text div with the calculated percentage
+        document.getElementById(
+          "player-percentage"
+        ).textContent = `Percentage: ${percentage.toFixed(2)}%`;
+      }
+    </script>
+  </body>
+</html>
