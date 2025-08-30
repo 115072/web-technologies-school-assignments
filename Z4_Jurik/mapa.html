@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="mapa/mapa.css" />
+    <style></style>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAaF3RKW4lDFAqPFpRJYTWUa2NQe-sdbao"></script>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+      <div class="container-fluid">
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="index.html"
+                >Galéria</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="mapa.html">Mapa</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div id="map" class="map-container"></div>
+    <div class="modal" id="modal">
+      <img class="modal-content" id="modal-image" />
+    </div>
+    <div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="routeToggle" />
+        <label class="form-check-label" for="routeToggle">Trasa</label>
+      </div>
+    </div>
+    <div id="routeDistance"></div>
+    <script src="mapa/mapa.js"></script>
+  </body>
+</html>

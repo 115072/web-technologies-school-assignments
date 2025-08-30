@@ -1,0 +1,103 @@
+{
+  "images": [
+    {
+      "name": "barcelona",
+      "title": "Camp Nou",
+      "description": "futbalový štadión FC Barcelona z vnútra",
+      "timestamp": "2012-08-01",
+      "url": "photos/barcelona_1.jpg",
+      "lat": 41.380094,
+      "lng": 2.123841
+    },
+    {
+      "name": "barcelona",
+      "title": "Camp Nou",
+      "description": "futbalový štadión FC Barcelona z vonka",
+      "timestamp": "2012-08-01",
+      "url": "photos/barcelona_2.jpg",
+      "lat": 41.38055,
+      "lng": 2.12132
+    },
+    {
+      "name": "barcelona",
+      "title": "Sagrada Familia",
+      "description": "kostol Sagrada Familia",
+      "timestamp": "2012-08-02",
+      "url": "photos/barcelona_3.jpg",
+      "lat": 41.402846,
+      "lng": 2.173509
+    },
+    {
+      "name": "budapest",
+      "title": "Parlament",
+      "description": "parlament v Budapešti",
+      "timestamp": "2013-08-05",
+      "url": "photos/budapest_1.jpg",
+      "lat": 47.506962,
+      "lng": 19.041861
+    },
+    {
+      "name": "budapest",
+      "title": "Hősök tere",
+      "description": "Námestie hrdinov v Budapešti",
+      "timestamp": "2013-08-05",
+      "url": "photos/budapest_2.jpg",
+      "lat": 47.514646,
+      "lng": 19.077403
+    },
+    {
+      "name": "marseille",
+      "title": "prístav",
+      "description": "prístav v Marseille",
+      "timestamp": "2014-08-05",
+      "url": "photos/marseille_1.jpg",
+      "lat": 43.299345,
+      "lng": 5.357816
+    },
+    {
+      "name": "marseille",
+      "title": "park",
+      "description": "park v Marseille",
+      "timestamp": "2014-08-05",
+      "url": "photos/marseille_2.jpg",
+      "lat": 43.293752,
+      "lng": 5.358428
+    },
+    {
+      "name": "milan",
+      "title": "kostol",
+      "description": "kostol v Milan",
+      "timestamp": "2015-08-05",
+      "url": "photos/milan_1.jpg",
+      "lat": 45.464018,
+      "lng": 9.189139
+    },
+    {
+      "name": "milan",
+      "title": "ulica",
+      "description": "ulica v Milan",
+      "timestamp": "2015-08-05",
+      "url": "photos/milan_2.jpg",
+      "lat": 45.464621,
+      "lng": 9.198479
+    },
+    {
+      "name": "ulm",
+      "title": "kostol",
+      "description": "kostol v Milan",
+      "timestamp": "2016-08-05",
+      "url": "photos/ulm_1.jpg",
+      "lat": 48.398498,
+      "lng": 9.990737
+    },
+    {
+      "name": "ulm",
+      "title": "ulica",
+      "description": "ulica v Ulm",
+      "timestamp": "2016-08-05",
+      "url": "photos/ulm_2.jpg",
+      "lat": 48.393784,
+      "lng": 9.992311
+    }
+  ]
+}
