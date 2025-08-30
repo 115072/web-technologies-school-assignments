@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Data</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- DataTables CSS -->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css"
+    />
+    <style>
+      /* Your custom styles remain the same */
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      th,
+      td {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+      }
+
+      th {
+        background-color: #f2f2f2;
+      }
+
+      /* Modal styles */
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        overflow: auto; /* Enable scrolling */
+      }
+
+      .modal-content {
+        position: fixed;
+        background-color: white;
+        margin: auto;
+        padding: 20px;
+        border: 1px solid #888;
+        border-radius: 8px;
+        width: 80%;
+        max-width: 600px; /* Limit max width for better readability */
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1001;
+        overflow-y: auto; /* Enable vertical scrolling */
+        max-height: 80%; /* Limit max height for better display */
+      }
+
+      .close {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="finalThesis.html">Final Thesis</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Schedule</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </header>
+    <div class="container mt-5">
+      <h2>Final Thesis</h2>
+      <div>
+        <label for="pracovisko">Pracovisko:</label>
+        <select id="pracovisko">
+          <option value="642">642</option>
+          <option value="548">548</option>
+          <option value="549">549</option>
+          <option value="550">550</option>
+          <option value="816">816</option>
+          <option value="817">817</option>
+          <option value="818">818</option>
+          <option value="356">356</option>
+        </select>
+      </div>
+      <div>
+        <label for="typ">Typ:</label>
+        <select id="typ">
+          <option value="---">---</option>
+          <option value="Bakalárska práca">Bakalárska práca</option>
+          <option value="Diplomová práca">Diplomová práca</option>
+          <option value="Dizertačná práca">Dizertačná práca</option>
+        </select>
+      </div>
+      <div>
+        <label for="search">Search:</label>
+        <input type="text" id="search" placeholder="Názov Témy/Abstrakt" />
+      </div>
+      <table id="dataTable">
+        <thead>
+          <tr>
+            <th>Názov Témy</th>
+            <th>Vedúci Práce</th>
+            <th>Garantujúce Pracovisko</th>
+            <th>Program</th>
+            <th>Zameranie</th>
+            <th>Typ</th>
+            <th>Obsadené/Max</th>
+          </tr>
+        </thead>
+        <tbody id="apiData">
+          <!-- Data will be dynamically inserted here -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Modal overlay and content -->
+    <div class="modal" id="modalOverlay">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Abstract</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p id="abstractContent"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("#pracovisko").change(function () {
+          fetchData($(this).val());
+        });
+
+        // Function to fetch data based on selected pracovisko
+        function fetchData(pracovisko) {
+          fetch(
+            "https://node54.webte.fei.stuba.sk/zadanie2/api/finalthesis/" +
+              pracovisko
+          )
+            .then((response) => response.json())
+            .then((data) => {
+              const apiData = $("#apiData");
+              apiData.empty(); // Clear existing data
+              data.forEach((entry) => {
+                const row = $("<tr>");
+                row.html(`
+                          <td>${entry.nazovTemy}</td>
+                          <td>${entry.veduciPrace}</td>
+                          <td>${entry.garantujucePracovisko}</td>
+                          <td>${entry.program}</td>
+                          <td>${entry.zameranie}</td>
+                          <td>${entry.typ}</td>
+                          <td>${entry.obsadeneMax}</td>
+                      `);
+                apiData.append(row);
+                // Store abstract as data attribute to the row
+                row.data("abstract", entry.abstract);
+              });
+              $("#dataTable").DataTable(); // Initialize DataTable
+            })
+            .catch((error) => console.error("Error fetching API:", error));
+        }
+
+        // Initial fetch based on default pracovisko
+        fetchData($("#pracovisko").val());
+
+        // Event listener for clicking on a row
+        $("#apiData").on("click", "tr", function () {
+          // Retrieve abstract from the clicked row's data attribute
+          const abstract = $(this).data("abstract");
+          $("#abstractContent").text(abstract);
+          $("#modalOverlay").modal("show");
+        });
+
+        // Event listener for search input
+        $("#search").on("input", function () {
+          const searchText = $(this).val().toLowerCase();
+          $("#apiData tr").each(function () {
+            const nazovTemy = $(this)
+              .find("td:first-child")
+              .text()
+              .toLowerCase();
+            const abstract = $(this).data("abstract").toLowerCase();
+            if (
+              nazovTemy.includes(searchText) ||
+              abstract.includes(searchText)
+            ) {
+              $(this).show();
+            } else {
+              $(this).hide();
+            }
+          });
+        });
+
+        // Event listener for Typ filter select
+        $("#typ").on("change", function () {
+          const selectedTyp = $(this).val();
+          if (selectedTyp === "---") {
+            $("#apiData tr").show(); // Show all rows if "---" is selected
+          } else {
+            $("#apiData tr").each(function () {
+              const typ = $(this).find("td:nth-child(6)").text(); // Assuming Typ is the 6th column
+              if (typ === selectedTyp) {
+                $(this).show();
+              } else {
+                $(this).hide();
+              }
+            });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

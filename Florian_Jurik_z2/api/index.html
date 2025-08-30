@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Table</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .delete-btn {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 6px 12px;
+        cursor: pointer;
+      }
+
+      .delete-btn:hover {
+        background-color: #c82333;
+      }
+
+      /* Modal styles */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.5);
+      }
+
+      .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+      }
+
+      .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+      }
+
+      .close:hover,
+      .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="finalThesis.html">Final Thesis</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Schedule</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </header>
+    <div class="container mt-5">
+      <h2>Schedule</h2>
+      <table class="table table-bordered">
+        <thead class="thead-light">
+          <tr>
+            <th>ID</th>
+            <th>Deň</th>
+            <th>Od</th>
+            <th>Do</th>
+            <th>Predmet</th>
+            <th>Akcia</th>
+            <th>Miestnosť</th>
+            <th>Vyučujúci</th>
+            <th>Obmedzenie</th>
+            <th>Kapacita</th>
+            <th>Akcia</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <!-- Table rows will be inserted here dynamically -->
+        </tbody>
+      </table>
+
+      <!-- Button to add predmet -->
+      <button class="btn btn-primary" onclick="openAddPredmetModal()">
+        Add Predmet
+      </button>
+
+      <!-- Button to open modal for adding with curl -->
+      <button class="btn btn-success" onclick="openCurlModal()">
+        Add with curl
+      </button>
+
+      <button class="btn btn-danger" onclick="deleteAllRows()">Delete All</button>
+
+    </div>
+
+    <!-- Modal for editing row -->
+    <div id="editModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Edit Row</h2>
+        <!-- Form for editing row data -->
+        <form id="editForm">
+          <input type="hidden" id="editId" name="id" />
+          <!-- Hidden input for row ID -->
+          <div class="form-group">
+            <label for="den">Den:</label>
+            <input type="text" class="form-control" id="den" name="den" />
+          </div>
+          <div class="form-group">
+            <label for="od">Od:</label>
+            <input type="text" class="form-control" id="od" name="od" />
+          </div>
+          <div class="form-group">
+            <label for="do">Do:</label>
+            <input type="text" class="form-control" id="do" name="do" />
+          </div>
+          <div class="form-group">
+            <label for="predmet">Predmet:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="predmet"
+              name="predmet"
+            />
+          </div>
+          <div class="form-group">
+            <label for="akcia">Akcia:</label>
+            <input type="text" class="form-control" id="akcia" name="akcia" />
+          </div>
+          <div class="form-group">
+            <label for="miestnost">Miestnost:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="miestnost"
+              name="miestnost"
+            />
+          </div>
+          <div class="form-group">
+            <label for="vyucujuci">Vyucujuci:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="vyucujuci"
+              name="vyucujuci"
+            />
+          </div>
+          <div class="form-group">
+            <label for="restriction">Restriction:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="restriction"
+              name="restriction"
+            />
+          </div>
+          <div class="form-group">
+            <label for="capacity">Capacity:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="capacity"
+              name="capacity"
+            />
+          </div>
+          <!-- Add other form fields similarly -->
+          <input type="submit" class="btn btn-primary" value="Submit" />
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal for adding new predmet -->
+    <div id="addPredmetModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeAddPredmetModal()">&times;</span>
+        <h2>Add Predmet</h2>
+        <!-- Form for adding new predmet -->
+        <form id="addPredmetForm">
+          <div class="form-group">
+            <label for="addDen">Den:</label>
+            <input type="text" class="form-control" id="addDen" name="den" />
+          </div>
+          <div class="form-group">
+            <label for="addOd">Od:</label>
+            <input type="text" class="form-control" id="addOd" name="od" />
+          </div>
+          <div class="form-group">
+            <label for="addDo">Do:</label>
+            <input type="text" class="form-control" id="addDo" name="do" />
+          </div>
+          <div class="form-group">
+            <label for="addPredmet">Predmet:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="addPredmet"
+              name="predmet"
+            />
+          </div>
+          <div class="form-group">
+            <label for="addAkcia">Akcia:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="addAkcia"
+              name="akcia"
+            />
+          </div>
+          <div class="form-group">
+            <label for="addMiestnost">Miestnost:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="addMiestnost"
+              name="miestnost"
+            />
+          </div>
+          <div class="form-group">
+            <label for="addVyucujuci">Vyucujuci:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="addVyucujuci"
+              name="vyucujuci"
+            />
+          </div>
+          <div class="form-group">
+            <label for="addRestriction">Restriction:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="addRestriction"
+              name="restriction"
+            />
+          </div>
+          <div class="form-group">
+            <label for="addCapacity">Capacity:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="addCapacity"
+              name="capacity"
+            />
+          </div>
+          <!-- Add other form fields similarly -->
+          <input type="submit" class="btn btn-primary" value="Submit" />
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal for adding with curl -->
+    <div id="curlModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeCurlModal()">&times;</span>
+        <h2>Add with curl</h2>
+        <!-- Form for adding with curl -->
+        <form id="curlForm" action="https://node54.webte.fei.stuba.sk/zadanie2/api/schedule" method="GET" onsubmit="addFromCurl()">
+          <div class="form-group">
+            <label for="curlPassword">Password:</label>
+            <input type="password" class="form-control" id="curlPassword" name="password" />
+          </div>
+          <input type="submit" class="btn btn-primary" value="Submit"/>
+        </form>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+
+function addFromCurl(){
+  event.preventDefault();
+  const password = document.getElementById("curlPassword").value;
+  const actionURL = document.getElementById("curlForm").action + "/" + password;
+  
+  fetch(actionURL)
+    .then(response => response.json())
+    .then(data => {
+      console.log(data); // Output fetched data
+      // Handle the fetched data as needed
+      fetchData();
+      closeCurlModal();
+    })
+    .catch(error => {
+      console.error("Error fetching data:", error);
+    });
+}
+      
+
+      // Function to open modal for adding with curl
+      function openCurlModal() {
+        document.getElementById("curlModal").style.display = "block";
+      }
+
+      // Function to close the modal for adding with curl
+      function closeCurlModal() {
+        document.getElementById("curlModal").style.display = "none";
+      }
+    </script>
+
+    <!-- Your existing JavaScript code remains here -->
+    <script>
+      // Function to open modal for editing row
+      function openModal(id) {
+        // Fetch row data by ID and populate the form fields
+        // You need to implement this part
+        // Once the form fields are populated, show the modal
+        document.getElementById("editModal").style.display = "block";
+        document.getElementById("editId").value = id; // Set the ID in the form
+      }
+
+      // Function to close the modal
+      function closeModal() {
+        document.getElementById("editModal").style.display = "none";
+      }
+
+      // Function to open modal for adding new predmet
+      function openAddPredmetModal() {
+        document.getElementById("addPredmetModal").style.display = "block";
+      }
+
+      // Function to close the modal for adding new predmet
+      function closeAddPredmetModal() {
+        document.getElementById("addPredmetModal").style.display = "none";
+      }
+
+      // Function to handle form submission (for editing row)
+      document
+        .getElementById("editForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          // Extract form data and send PATCH request
+          const formData = new FormData(this);
+          const id = formData.get("id");
+          const patchData = {
+            den: formData.get("den"),
+            od: formData.get("od"),
+            do: formData.get("do"),
+            predmet: formData.get("predmet"),
+            akcia: formData.get("akcia"),
+            miestnost: formData.get("miestnost"),
+            vyucujuci: formData.get("vyucujuci"),
+            restriction: formData.get("restriction"),
+            capacity: formData.get("capacity"),
+          };
+          fetch(`https://node54.webte.fei.stuba.sk/zadanie2/api/schedule/${id}`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(patchData),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              console.log(data.message); // Output success message
+              // Close the modal and refresh the table after successful update
+              closeModal();
+              fetchData(); // Refresh table data
+            })
+            .catch((error) => {
+              console.error("Error updating row:", error);
+            });
+        });
+
+      // Function to handle form submission for adding new predmet
+      document
+        .getElementById("addPredmetForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          const formData = new FormData(this);
+          const postData = {
+            den: formData.get("den"),
+            od: formData.get("od"),
+            do: formData.get("do"),
+            predmet: formData.get("predmet"),
+            akcia: formData.get("akcia"),
+            miestnost: formData.get("miestnost"),
+            vyucujuci: formData.get("vyucujuci"),
+            restriction: formData.get("restriction"),
+            capacity: formData.get("capacity"),
+          };
+          fetch("https://node54.webte.fei.stuba.sk/zadanie2/api/schedule", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(postData),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              console.log(data.message); // Output success message
+              closeAddPredmetModal();
+              fetchData(); // Refresh table data
+            })
+            .catch((error) => {
+              console.error("Error adding new predmet:", error);
+            });
+        });
+
+      // Function to fetch data from the API
+      function fetchData() {
+        fetch("https://node54.webte.fei.stuba.sk/zadanie2/api/schedule")
+          .then((response) => response.json())
+          .then((data) => {
+            // Clear existing table rows
+            const tableBody = document.getElementById("tableBody");
+            tableBody.innerHTML = "";
+
+            // Insert new table rows with fetched data
+            data.forEach((item) => {
+              const row = document.createElement("tr");
+              row.innerHTML = `
+            <td>${item.id}</td>
+            <td>${item.den}</td>
+            <td>${item.od}</td>
+            <td>${item.do}</td>
+            <td>${item.predmet}</td>
+            <td>${item.akcia}</td>
+            <td>${item.miestnost}</td>
+            <td>${item.vyucujuci}</td>
+            <td>${item.restriction}</td>
+            <td>${item.capacity}</td>
+            <td>
+                <button class="delete-btn" onclick="deleteRow(${item.id})">Delete</button>
+                <button onclick="openModal(${item.id})">Edit</button>
+            </td>
+        `;
+              tableBody.appendChild(row);
+            });
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          });
+      }
+
+      // Function to delete a row
+      function deleteRow(id) {
+          fetch(`https://node54.webte.fei.stuba.sk/zadanie2/api/schedule/${id}`, {
+            method: "DELETE",
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              console.log(data.message); // Output success message
+              // Refresh the table after deletion
+              fetchData();
+            })
+            .catch((error) => {
+              console.error("Error deleting row:", error);
+            });
+        
+      }
+      // Call fetchData function when the page loads
+      fetchData();
+
+      // Function to delete all rows
+function deleteAllRows() {
+  if (confirm("Are you sure you want to delete all rows?")) {
+    fetch("https://node54.webte.fei.stuba.sk/zadanie2/api/schedule", {
+      method: "DELETE",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data.message); // Output success message
+        // Refresh the table after deletion
+        fetchData();
+      })
+      .catch((error) => {
+        console.error("Error deleting all rows:", error);
+      });
+  }
+}
+
+    </script>
+  </body>
+</html>
