@@ -1,0 +1,59 @@
+
+h1{
+  font-family: font;
+}
+
+h3{
+  font-family: font;
+}
+
+p{
+  font-family: font;
+}
+
+
+
+
+.image-container {
+  position: relative;
+  width: 100%;
+}
+
+.responsive-image {
+  max-width: 100%;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+}
+
+.dot {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: red; 
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.info {
+  display: none;
+  position: absolute;
+  top: -55px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 5px;
+  border-radius: 25px;
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  transition: opacity 0.2s ease;
+}
+
+.dot:hover .info {
+  display: block;
+  opacity: 1;
+}
+

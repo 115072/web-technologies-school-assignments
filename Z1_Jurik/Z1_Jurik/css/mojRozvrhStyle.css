@@ -1,0 +1,79 @@
+
+h1{
+  font-family: font;
+  text-align: center;
+}
+h3{
+  font-family: font;
+}
+
+.tabla tr:nth-of-type(odd){
+  background: #379ba6;
+}
+.tabla tr:nth-of-type(even){
+  background: #bf8049;
+}
+
+.tsv{
+  background: #04AA6D;
+}
+
+.predn{
+  background: rgb(55, 55, 246);
+}
+
+.cvic{
+  background: rgb(241, 66, 66);
+}
+
+.telesna{
+width: 50px;
+height: 20px;
+background-color: #04AA6D;
+margin-top: 1rem;
+margin-right: 1rem;
+border-width: 1px;
+border-style:solid;
+border-color:black;
+}
+
+.prednaska{
+width: 50px;
+height: 20px;
+background-color: rgb(55, 55, 246);
+border: 1px;
+margin-top: 1rem;
+margin-right: 1rem;
+border-width: 1px;
+border-style:solid;
+border-color:black;
+}
+
+.cvicenie{
+width: 50px;
+height: 20px;
+background-color: rgb(241, 66, 66);
+margin-top: 1rem;
+margin-right: 1rem;
+border-width: 1px;
+border-style:solid;
+border-color:black;
+}
+
+.legenda{
+display: flex;
+margin-bottom: 0;
+}
+
+.tabla{
+  border: 1;
+  margin-left: auto;
+  margin-right: auto;
+  overflow-x: auto;
+  overflow-x: auto;
+}
+
+td{
+  text-align: center;
+}
+

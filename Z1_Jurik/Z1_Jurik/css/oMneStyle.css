@@ -1,0 +1,54 @@
+
+  @font-face {
+    font-family: font2;
+    src: url(../birds_of_paradise/Birds\ of\ Paradise\ ©\ PERSONAL\ USE\ ONLY.ttf);
+  }
+
+  p{
+    font-family: font;
+  }
+
+  h1{
+    font-family: font;
+    text-align: center;
+  }
+
+  aside{
+    margin: 5px;
+    font-size: xx-large;
+    font-family: font2;
+    border-width: 1px;
+    border-style:solid;
+    border-color:black;
+    color: rgb(235, 228, 228);
+    display: inline;
+    background-color: #1f6373;
+  }
+
+  .brigada{
+    float: right;
+  }
+
+.image-container {
+  position: relative;
+  width: 100%;
+}
+
+.responsive-image {
+  max-width: 100%;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+}
+
+
+.fotka{
+  width: 30%;
+  height: auto;
+  @media (max-width:600px) {
+    width: 100%;
+  }
+}
+
+

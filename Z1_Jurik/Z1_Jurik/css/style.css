@@ -1,0 +1,42 @@
+
+@font-face {
+  font-family: font;
+  src: url(../roboto/Roboto-Regular.ttf);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+nav {
+  background-color: #1f6373;
+  color: #fff;
+  font-size: 18px;
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center;
+  padding: 10px 20px;
+}
+
+nav ul { 
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+
+nav li {
+  margin-right: 20px;
+}
+
+nav a {
+  text-decoration: none;
+  color: #fff;
+  transition: color 0.3s;
+}
+
+nav a:hover {
+  color: #ff6600;
+}
