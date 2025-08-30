@@ -1,0 +1,58 @@
+premier leaug
+	man united
+		Harry Maguire - 20m  jayde riviere
+		Casemiro - 40m	    Katie Zelem
+		Marcus Rashford - 80 Nikita Parris
+	Liverpool
+		Virgil Van Dijk - 35  Grace Fisk
+		Dominik Szoboszlai - 50  Sofie Lundgaard
+		Mohamed Salah - 65  Melissa Lawley
+	Arsenal
+		Aaron Ramsdale - 40 - Steph Catley
+		Kai Havertz - 55 - Frida Maanum
+		Bukayo Saka - 120 - Gio Queiroz
+Seria A
+	Napoli
+		Stanislav Lobotka - 40 - Federica Veritti
+		Khvicha Kvaratskhelia - 85 - Gina Chmielinski
+		Victor Osimhen - 120 - Francesca Fabiano
+	AC Milan
+		Christian Pulisic - 25 - Laura Fusetti
+		Olivier Giroud - 4 - Kamila Dubcová
+		Rafael Leao - 90 - Giorgia Arrigoni
+	AS Roma
+		Romelu Lukaku - 40 - EMILIE HAAVI
+		Edoardo Bove - 10 - CLAUDIA CICCOTTI
+		Leonardo Spinazzola - 10 - ELISA BARTOLI
+La Liga
+	Fc Barcelona
+		Jules Kounde - 60 - Claudia Pina
+		Gavi - 90 - Lucy Bronze
+		Robert Lewandowski - 30 - Gemma Font
+	Real Madrid
+		Carvajal - 12 - Teresa Abelleira
+		Jude Bellingham - 120 - Linda Caicedo
+		Vini Jr. - 150 - Oihane Hernández
+	Sevilla
+		Sergio Ramos - 4.5 - Ana Franco
+		Ivan Rakitic - 4 - Klára Cahynová
+		Suso - 6 - Diana Gomes
+
+
+
+
+
+prem
+serie
+laliga
+manuni
+liverp
+arsenal
+napoli
+milan
+roma
+barca
+madrid
+sevilla
+
+		

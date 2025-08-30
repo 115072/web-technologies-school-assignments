@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="sk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Document</title>
+  </head>
+  <body>
+    <header>
+      <h1>FFF Foot Buyer Form</h1>
+    </header>
+    <div class="container">
+      <form
+        action="https://form2mail.iolab.sk/form2mail.php"
+        method="post"
+        enctype="multipart/form-data"
+        style="margin-bottom: 60px; margin-top: 20px"
+      >
+        <input
+          type="hidden"
+          name="apikey"
+          value="800220577a7de5582c1b6462ffd01ac2"
+        />
+
+        <input type="hidden" name="from" value="xjurikf@stuba.sk" />
+        <input type="hidden" name="sender" value="Jurik Florian" />
+        <input type="hidden" name="to" value="jurik.florian@gmail.com" />
+        <input type="hidden" name="subject" value="Formular WEBTE" />
+        <input
+          type="hidden"
+          name="redirectOk"
+          value="https://webte1.fei.stuba.sk/~xsefcikj/success.html"
+        />
+        <input
+          type="hidden"
+          name="redirectFalse"
+          value="https://webte1.fei.stuba.sk/~xsefcikj/failure.html"
+        />
+        <div class="columnBreak">
+          <div class="osobneUdaje">
+            <div class="menoPriezv">
+              <div class="meno">
+                <label for="meno">Meno:</label>
+                <input
+                  style="width: auto"
+                  type="text"
+                  id="meno"
+                  name="meno"
+                  placeholder="Snoop"
+                  required
+                  onblur="errorSprava('meno','errorMessageMeno')"
+                  maxlength="20"
+                />
+                <p id="charCountMeno"></p>
+                <span id="errorMessageMeno"></span>
+              </div>
+
+              <div class="priezv">
+                <label for="priezvisko">Priezvisko:</label>
+                <input
+                  style="width: auto"
+                  type="text"
+                  id="priezvisko"
+                  name="priezvisko"
+                  placeholder="Dogg"
+                  required
+                  onblur="errorSprava('priezvisko','errorMessagePriezvisko')"
+                  maxlength="20"
+                />
+                <p id="charCountPriezvisko"></p>
+                <span id="errorMessagePriezvisko"></span>
+              </div>
+            </div>
+            <div class="narod">
+              <label for="narod">Narodenie:</label>
+              <div style="display: flex; flex-direction: column">
+                <input
+                  type="date"
+                  id="narod"
+                  name="narod"
+                  oninput="getVek()"
+                  required
+                  style="width: auto"
+                  onblur="errorSprava('narod','errorMessageNarod')"
+                />
+                <span style="margin-top: 5px" id="vek"></span>
+                <span id="errorMessageNarod"></span>
+              </div>
+            </div>
+            <div class="email">
+              <label for="email">Email:</label>
+
+              <div style="display: flex; flex-direction: column; gap: 2px">
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  placeholder="Snoop.dogg@G-mail.com"
+                  pattern="[a-zA-Z0-9._%+-]{3,}@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}"
+                  multiple
+                  required
+                  style="width: auto"
+                  onblur="errorSprava('email','errorMessageEmail')"
+                />
+                <span id="errorMessageEmail"></span>
+              </div>
+            </div>
+
+            <div class="telefon">
+              <label for="telefon">Telefonné číslo:</label>
+              <div style="display: flex; flex-direction: column; gap: 2px">
+                <input
+                  type="tel"
+                  id="telefon"
+                  name="telefon"
+                  placeholder="+420942040690"
+                  pattern="[+]{1}[0-9]{12}"
+                  required
+                  style="width: auto"
+                  onblur="errorSprava('telefon','errorMessageTel')"
+                />
+                <span id="errorMessageTel"></span>
+              </div>
+            </div>
+          </div>
+          <div style="width: 100%">
+            <div class="pohlavie">
+              <label for="pohl">Pohlavie:</label>
+
+              <div class="radioButtons">
+                <label for="muz">Muž</label>
+                <input
+                  type="radio"
+                  id="muz"
+                  name="pohl"
+                  value="muz"
+                  checked
+                  onclick="ukazHracov();getHracValue()"
+                />
+
+                <label for="zena">Žena</label>
+                <input
+                  type="radio"
+                  id="zena"
+                  name="pohl"
+                  value="zena"
+                  onclick="ukazHracov();getHracValue()"
+                />
+              </div>
+            </div>
+            <div class="select">
+              <div>
+                <select
+                  id="liga"
+                  class="liga"
+                  name="liga"
+                  onchange="ukaztim2()"
+                >
+                  <option>Vyber si jedno</option>
+                  <option value="prem">Premier Leauge</option>
+                  <option value="serie">Serie A</option>
+                  <option value="laliga">La liga</option>
+                </select>
+              </div>
+
+              <div>
+                <select id="tim" class="tim" name="tim" onchange="ukazHracov()">
+                  <option>Vyber si tím</option>
+                </select>
+              </div>
+
+              <div>
+                <select
+                  id="hraci"
+                  class="hraci"
+                  name="platba"
+                  onchange="getHracValue()"
+                >
+                  <option>vyber si hráča</option>
+                </select>
+              </div>
+              <p>hráč/ka stojí: <span id="playerValue"></span></p>
+            </div>
+
+            <div class="checkbox">
+              <p>+ servis</p>
+              <label for="security" class="checkboxLabel">
+                <input
+                  type="checkbox"
+                  id="security"
+                  name="security"
+                  value="1"
+                />
+                security (4)
+              </label>
+              <label for="vysetrenie" class="checkboxLabel">
+                <input
+                  type="checkbox"
+                  id="vysetrenie"
+                  name="vysetrenie"
+                  value="1"
+                />
+                vyšetrenie (2)
+              </label>
+              <label for="cestovanie" class="checkboxLabel">
+                <input
+                  type="checkbox"
+                  id="cestovanie"
+                  name="cestovanie"
+                  value="1"
+                  onclick="ukazText()"
+                />
+                cestovanie (1)
+              </label>
+              <div class="inyOdpoved">
+                <label for="miesto">Zadajte kde treba hráča zobrať:</label>
+                <input
+                  type="text"
+                  id="miesto"
+                  name="miesto"
+                  style="width: auto"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+          "
+        >
+          <div
+            style="
+              width: 100%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            "
+          >
+            <div class="poznamky" style="width: 100%">
+              <label for="poznamky">Poznamka:</label>
+              <textarea
+                id="poznamky"
+                name="poznamky"
+                style="width: 100%"
+              ></textarea>
+            </div>
+          </div>
+          <div
+            style="
+              width: 100%;
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              flex-direction: row;
+            "
+          >
+            <div>
+              <input type="text" class="mojeMeno" value="Florian Jurik" />
+              <button
+                type="button"
+                onclick="odokryt()"
+                style="margin-top: 10px"
+              >
+                Odokry meno!
+              </button>
+            </div>
+
+            <div>
+              <input
+                style="margin-top: 10px"
+                type="button"
+                id="openModalBtn"
+                value="Send"
+                disabled="true"
+              />
+            </div>
+          </div>
+        </div>
+        <div id="myModal" class="modal">
+          <div class="modal-content">
+            <span class="close" id="closeModalBtn">&times;</span>
+            <h2><b>Súhrn</b></h2>
+            <p><b>Meno:</b> <span id="modalMeno"></span></p>
+            <p><b>Priezvisko:</b> <span id="modalPriezvisko"></span></p>
+            <p><b>E-mail:</b> <span id="modalEmail"></span></p>
+            <p><span id="modalVek"></span></p>
+            <p><b>Pohlavie:</b> <span id="modalPohlavie"></span></p>
+            <p><b>Poznámka:</b> <span id="modalPoznamka"></span></p>
+            <p><b>Cena:</b> <span id="modalCena"></span></p>
+            <span id="modalDestinacia"></span>
+            <div>
+              <input type="submit" id="odoslat" />
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
